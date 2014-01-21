@@ -1,0 +1,64 @@
+From 24043a9b8c567dc2713f285536266f9e217416b9 Mon Sep 17 00:00:00 2001
+From: Tilmann Bubeck <t.bubeck@reinform.de>
+Date: Tue, 25 Oct 2011 00:00:00 +0000
+Subject: [PATCH 10/10] fix smart attribute comparison
+
+Each S.M.A.R.T. attribute is compared against a threshold. If it is LESSTHAN
+that threshold an error is reported.  This patch fixes the problem, that
+attribute values EQUAL to the threshold are reported as error, which is wrong.
+Only LESSTHAN the threshold is an error.
+
+For more information see: http://www.hdsentinel.com/smart/index.php
+
+My SSD has some attributes which value and threshold are "0". Without the patch
+this is reported as errornous.
+
+ID# ATTRIBUTE_NAME FLAG VALUE WORST THRESH TYPE UPDATED WHEN_FAILED RAW_VALUE
+...
+172 Unknown_Attribute 0x0032 000 000 000 Old_age Always - 0
+174 Unknown_Attribute 0x0030 000 000 000 Old_age Offline - 13
+177 Wear_Leveling_Count 0x0000 000 000 000 Old_age Offline - 0
+...
+
+See also:
+
+* http://sourceforge.net/p/monitoringplug/patches/365/
+* https://bugzilla.redhat.com/913085
+---
+ plugins/check_ide_smart.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/plugins/check_ide_smart.c b/plugins/check_ide_smart.c
+index b942461..2bb6a29 100644
+--- a/plugins/check_ide_smart.c
++++ b/plugins/check_ide_smart.c
+@@ -311,7 +311,7 @@ values_not_passed (values_t * p, thresholds_t * t)
+ 	int i;
+ 	for (i = 0; i < NR_ATTRIBUTES; i++) {
+ 		if (value->id && threshold->id && value->id == threshold->id) {
+-			if (value->value <= threshold->threshold) {
++			if (value->value < threshold->threshold) {
+ 				++failed;
+ 			}
+ 			else {
+@@ -340,7 +340,7 @@ monitoring (values_t * p, thresholds_t * t)
+ 	int i;
+ 	for (i = 0; i < NR_ATTRIBUTES; i++) {
+ 		if (value->id && threshold->id && value->id == threshold->id) {
+-			if (value->value <= threshold->threshold) {
++			if (value->value < threshold->threshold) {
+ 				++failed;
+ 				if (value->status & 1) {
+ 					status = PREFAILURE;
+@@ -397,7 +397,7 @@ print_value (value_t * p, threshold_t * t)
+ 	printf ("Id=%3d, Status=%2d {%s , %s}, Value=%3d, Threshold=%3d, %s\n",
+ 					p->id, p->status, p->status & 1 ? "PreFailure" : "Advisory   ",
+ 					p->status & 2 ? "OnLine " : "OffLine", p->value, t->threshold,
+-					p->value > t->threshold ? "Passed" : "Failed");
++					p->value >= t->threshold ? "Passed" : "Failed");
+ }
+ 
+ 
+-- 
+1.8.3.1
+

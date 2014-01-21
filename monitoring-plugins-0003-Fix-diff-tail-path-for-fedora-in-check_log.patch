@@ -1,0 +1,27 @@
+From 73c39cf014dbd3a6cac38483cff2e7aedc687b78 Mon Sep 17 00:00:00 2001
+From: Michael Friedrich <michael.friedrich@netways.de>
+Date: Tue, 21 Jan 2014 22:03:14 +0100
+Subject: [PATCH] Fix diff/tail path for fedora in check_log
+
+---
+ plugins-scripts/check_log.sh |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/plugins-scripts/check_log.sh b/plugins-scripts/check_log.sh
+index 54408cb..e4fe776 100755
+--- a/plugins-scripts/check_log.sh
++++ b/plugins-scripts/check_log.sh
+@@ -61,8 +61,8 @@
+ #PATH=""
+ 
+ GREP="/bin/egrep"
+-DIFF="/bin/diff"
+-TAIL="/bin/tail"
++DIFF="/usr/bin/diff"
++TAIL="/usr/bin/tail"
+ CAT="/bin/cat"
+ RM="/bin/rm"
+ CHMOD="/bin/chmod"
+-- 
+1.7.1
+
