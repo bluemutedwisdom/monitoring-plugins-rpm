@@ -1,7 +1,7 @@
 %global _hardened_build 1
 
 Name: monitoring-plugins
-Version: 1.5
+Version: 1.6
 Release: 1%{?dist}
 Summary: Host/service/network monitoring program plugins for Nagios, Icinga, Naemon, Shinken
 
@@ -10,8 +10,8 @@ License: GPLv2+
 URL: https://www.monitoring-plugins.org/
 Source0: https://www.monitoring-plugins.org/download/%{name}-%{version}.tar.gz
 Source1: monitoring-plugins.README.Fedora
-# 2014-01-21 mf: verified required
-Patch2: monitoring-plugins-0002-Remove-assignment-of-not-parsed-to-jitter.patch
+# 2014-01-21 mf: removed in https://github.com/monitoring-plugins/monitoring-plugins/commit/43fbde678c608c2d44d9ebd98a710e63d9300f06
+#Patch2: monitoring-plugins-0002-Remove-assignment-of-not-parsed-to-jitter.patch
 # 2014-01-21 mf: verified required
 Patch3: monitoring-plugins-0003-Fix-diff-tail-path-for-fedora-in-check_log.patch
 # 2014-01-21 mf: verified required
@@ -19,11 +19,11 @@ Patch4: monitoring-plugins-0004-Fedora-specific-patch-for-not-to-fixing-fully-qu
 # 2014-01-21 mf: verified required
 # https://bugzilla.redhat.com/512559
 Patch5: monitoring-plugins-0005-Prevent-check_swap-from-returning-OK-if-no-swap-acti.patch
-# 2014-01-21 mf: verified required
-Patch7: monitoring-plugins-0007-Fix-the-use-lib-statement-and-the-external-ntp-comma.patch
-# 2014-01-21 mf: verified required
+# 2014-01-21 mf: obsolete with https://github.com/monitoring-plugins/monitoring-plugins/commit/43fbde678c608c2d44d9ebd98a710e63d9300f06
+#Patch7: monitoring-plugins-0007-Fix-the-use-lib-statement-and-the-external-ntp-comma.patch
+# 2014-01-28 mf: fixed in https://github.com/monitoring-plugins/monitoring-plugins/commit/c4a99b023d03326ad49e03c8731eec19d19a75bf
 # https://bugzilla.redhat.com/913085
-Patch10:monitoring-plugins-0010-fix-smart-attribute-comparison.patch
+#Patch10:monitoring-plugins-0010-fix-smart-attribute-comparison.patch
 
 BuildRequires: openldap-devel
 BuildRequires: mysql-devel
@@ -65,7 +65,7 @@ This package contains those plugins.
 %package all
 Summary: Monitoring Plugins - All plugins
 Group: Applications/System
-Requires: monitoring-plugins-breeze, monitoring-plugins-by_ssh, monitoring-plugins-dhcp, monitoring-plugins-dig, monitoring-plugins-disk, monitoring-plugins-disk_smb, monitoring-plugins-dns, monitoring-plugins-dummy, monitoring-plugins-file_age, monitoring-plugins-flexlm, monitoring-plugins-fping, monitoring-plugins-hpjd, monitoring-plugins-http, monitoring-plugins-icmp, monitoring-plugins-ide_smart, monitoring-plugins-ircd, monitoring-plugins-ldap, monitoring-plugins-load, monitoring-plugins-log, monitoring-plugins-mailq, monitoring-plugins-mrtg, monitoring-plugins-mrtgtraf, monitoring-plugins-mysql, monitoring-plugins-core, monitoring-plugins-nt, monitoring-plugins-ntp, monitoring-plugins-ntp-perl, monitoring-plugins-nwstat, monitoring-plugins-oracle, monitoring-plugins-overcr, monitoring-plugins-pgsql, monitoring-plugins-ping, monitoring-plugins-procs, monitoring-plugins-game, monitoring-plugins-real, monitoring-plugins-rpc, monitoring-plugins-smtp, monitoring-plugins-snmp, monitoring-plugins-ssh, monitoring-plugins-swap, monitoring-plugins-tcp, monitoring-plugins-time, monitoring-plugins-ups, monitoring-plugins-users, monitoring-plugins-wave, monitoring-plugins-cluster
+Requires: monitoring-plugins-breeze, monitoring-plugins-by_ssh, monitoring-plugins-dhcp, monitoring-plugins-dig, monitoring-plugins-disk, monitoring-plugins-disk_smb, monitoring-plugins-dns, monitoring-plugins-dummy, monitoring-plugins-file_age, monitoring-plugins-flexlm, monitoring-plugins-fping, monitoring-plugins-hpjd, monitoring-plugins-http, monitoring-plugins-icmp, monitoring-plugins-ide_smart, monitoring-plugins-ircd, monitoring-plugins-ldap, monitoring-plugins-load, monitoring-plugins-log, monitoring-plugins-mailq, monitoring-plugins-mrtg, monitoring-plugins-mrtgtraf, monitoring-plugins-mysql, monitoring-plugins-core, monitoring-plugins-nt, monitoring-plugins-ntp, monitoring-plugins-nwstat, monitoring-plugins-oracle, monitoring-plugins-overcr, monitoring-plugins-pgsql, monitoring-plugins-ping, monitoring-plugins-procs, monitoring-plugins-game, monitoring-plugins-real, monitoring-plugins-rpc, monitoring-plugins-smtp, monitoring-plugins-snmp, monitoring-plugins-ssh, monitoring-plugins-swap, monitoring-plugins-tcp, monitoring-plugins-time, monitoring-plugins-ups, monitoring-plugins-users, monitoring-plugins-wave, monitoring-plugins-cluster
 %ifnarch ppc ppc64 ppc64p7 sparc sparc64
 Requires: monitoring-plugins-sensors
 %endif
@@ -124,29 +124,30 @@ Requires: monitoring-plugins = %{version}-%{release}
 
 %description dbi
 Provides check_dbi support for Nagios, Icinga, Naemon, Shinken.
+Requires additional driver packages.
 
 %package dbi-mysql
-Summary: Monitoring Plugin - check_dbi
+Summary: Monitoring Plugin - check_dbi MySQL
 Group: Applications/System
-Requires: monitoring-plugins = %{version}-%{release}
+Requires: monitoring-plugins-dbi = %{version}-%{release}
 Requires: libdbi-dbd-mysql
 
 %description dbi-mysql
 Provides check_dbi MySQL support for Nagios, Icinga, Naemon, Shinken.
 
 %package dbi-pgsql
-Summary: Monitoring Plugin - check_dbi
+Summary: Monitoring Plugin - check_dbi PostgreSQL
 Group: Applications/System
-Requires: monitoring-plugins = %{version}-%{release}
+Requires: monitoring-plugins-dbi = %{version}-%{release}
 Requires: libdbi-dbd-pgsql
 
 %description dbi-pgsql
 Provides check_dbi PostgreSQL support for Nagios, Icinga, Naemon, Shinken.
 
 %package dbi-sqlite
-Summary: Monitoring Plugin - check_dbi
+Summary: Monitoring Plugin - check_dbi SQLite
 Group: Applications/System
-Requires: monitoring-plugins = %{version}-%{release}
+Requires: monitoring-plugins-dbi = %{version}-%{release}
 Requires: libdbi-dbd-sqlite
 
 %description dbi-sqlite
@@ -386,16 +387,6 @@ Requires: monitoring-plugins = %{version}-%{release}
 %description ntp
 Provides check_ntp support for Nagios, Icinga, Naemon, Shinken.
 
-%package ntp-perl
-Summary: Monitoring Plugin - check_ntp.pl
-Group: Applications/System
-Requires: monitoring-plugins = %{version}-%{release}
-Requires: %{_sbindir}/ntpdate
-Requires: %{_sbindir}/ntpq
-
-%description ntp-perl
-Provides check_ntp.pl support for Nagios, Icinga, Naemon, Shinken.
-
 %package nwstat
 Summary: Monitoring Plugin - check_nwstat
 Group: Applications/System
@@ -583,12 +574,9 @@ Provides check_wave support for Nagios, Icinga, Naemon, Shinken.
 %prep
 %setup -q
 
-%patch2 -p1 -b .not_parsed
 %patch3 -p1 -b .proper_paths
 %patch4 -p1 -b .no_need_fo_fix_paths
 %patch5 -p1 -b .fix_missing_swap
-%patch7 -p1 -b .ext_ntp_cmds
-%patch10 -p1 -b .ssd_smart_params
 
 %build
 %configure \
@@ -616,9 +604,6 @@ make check_pgsql
 
 cd ..
 
-mv plugins-scripts/check_ntp.pl plugins-scripts/check_ntp.pl.in
-gawk -f plugins-scripts/subst plugins-scripts/check_ntp.pl.in > plugins-scripts/check_ntp.pl
-
 cp %{SOURCE1} ./README.Fedora
 
 %install
@@ -628,7 +613,6 @@ install -m 0755 plugins-root/check_icmp %{buildroot}/%{_libdir}/monitoring/plugi
 install -m 0755 plugins-root/check_dhcp %{buildroot}/%{_libdir}/monitoring/plugins
 install -m 0755 plugins/check_ide_smart %{buildroot}/%{_libdir}/monitoring/plugins
 install -m 0755 plugins/check_ldap %{buildroot}/%{_libdir}/monitoring/plugins
-install -m 0755 plugins-scripts/check_ntp.pl %{buildroot}/%{_libdir}/monitoring/plugins
 install -m 0755 plugins/check_radius %{buildroot}/%{_libdir}/monitoring/plugins
 install -m 0755 plugins/check_pgsql %{buildroot}/%{_libdir}/monitoring/plugins
 
@@ -770,9 +754,6 @@ exit 0
 %{_libdir}/monitoring/plugins/check_ntp_peer
 %{_libdir}/monitoring/plugins/check_ntp_time
 
-%files ntp-perl
-%{_libdir}/monitoring/plugins/check_ntp.pl
-
 %files nwstat
 %{_libdir}/monitoring/plugins/check_nwstat
 
@@ -847,6 +828,12 @@ exit 0
 %{_libdir}/monitoring/plugins/check_wave
 
 %changelog
+* Tue Jan 28 2013 Michael Friedrich <michael.friedrich@netways.de> - 1.6-1
+- bump to 1.6
+- fix dbi-* requires (must pull dbi directly)
+- review & drop unnecessary patches: 0002, 0007, 0010
+- drop monitoring-plugins-ntp-perl (upstream removed check_ntp.pl)
+
 * Tue Jan 21 2013 Michael Friedrich <michael.friedrich@netways.de> - 1.5-1
 - import & refactoring from nagios plugins package
 - use generic user 'monplug'
